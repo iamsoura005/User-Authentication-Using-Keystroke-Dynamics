@@ -1,112 +1,67 @@
-# User-Authentication-Using-Keystroke-Dynamics
-📜 Description
-Keystroke Dynamics is a behavioral biometric technique that analyzes the unique typing patterns of individuals. The way you type — the rhythm, speed, and timing between key presses — forms a distinctive pattern that can be used for user authentication.
+# Keystroke Dynamics User Verification
 
-In this project, we leverage keystroke dynamics to build a secure user authentication system. This method adds an additional layer of security beyond passwords, helping to mitigate threats like stolen credentials or replay attacks.
+This project implements user verification based on keystroke dynamics using 5 different models:
+- Manhattan Distance
+- Manhattan Filtered Distance
+- Manhattan Scaled Distance
+- Gaussian Mixture Model (GMM)
+- Support Vector Machine (SVM)
 
-Key Features:
-✅ Capture user's typing patterns
-✅ Analyze timing metrics (key hold time, flight time, latency)
-✅ Train machine learning models to recognize valid users
-✅ Support continuous and static authentication
-✅ Improve cybersecurity with minimal impact on user experience
+## Dataset
+The project uses the CMU Keystroke Benchmark dataset.
 
-🚀 How It Works
-Data Collection
-The system captures the timing of keystrokes:
+## Setup Instructions
 
-Hold Time: Time a key is pressed down
+1. Clone the repository
+```
+git clone https://github.com/yourusername/keystroke-dynamics-project.git
+cd keystroke-dynamics-project
+```
 
-Flight Time: Time between key releases and next key presses
+2. Create a virtual environment (optional but recommended)
+```
+python -m venv venv
+```
 
-Feature Extraction
-Typing patterns are converted into numerical features suitable for model training.
+3. Activate the virtual environment
+   - Windows: `venv\Scripts\activate`
+   - macOS/Linux: `source venv/bin/activate`
 
-Model Training
-A classifier (such as SVM, Random Forest, or Neural Networks) is trained on genuine user patterns and impostor attempts.
-
-Authentication
-During login, a new typing sample is compared to the user's profile to determine authenticity.
-
-🛠️ Tech Stack
-Languages: Python
-
-Libraries:
-
-pynput / keyboard (for keylogging in GUI apps)
-
-pandas and numpy (for data manipulation)
-
-scikit-learn (for machine learning)
-
-matplotlib or seaborn (for visualization)
-
-📁 Project Structure
-bash
-Copy
-Edit
-keystroke-authentication/
-├── data/              # Collected typing data
-├── models/            # Saved trained models
-├── src/               # Source code
-│   ├── data_collection.py
-│   ├── feature_extraction.py
-│   ├── train_model.py
-│   ├── authenticate.py
-├── notebooks/         # Jupyter notebooks for EDA & experiments
-├── requirements.txt
-└── README.md
-⚙️ Installation
-bash
-Copy
-Edit
-git clone https://github.com/yourusername/keystroke-authentication.git
-cd keystroke-authentication
+4. Install dependencies
+```
 pip install -r requirements.txt
-🚦 Usage
-Data Collection
-Run the data collection script to capture your typing patterns:
+```
 
-bash
-Copy
-Edit
-python src/data_collection.py
-Train the Model
-bash
-Copy
-Edit
-python src/train_model.py
-Authenticate User
-bash
-Copy
-Edit
-python src/authenticate.py
-✅ Applications
-Two-factor authentication
+5. Run the Flask application
+```
+python app.py
+```
 
-Continuous authentication
+6. Open your browser and navigate to `http://localhost:5000`
 
-Fraud detection in banking and sensitive applications
+## Project Structure
+```
+keystroke-dynamics-project/  
+├── data/  
+│   ├── keystroke.csv  
+│   ├── keystroke.xls  
+├── models/  
+│   ├── manhattan.py  
+│   ├── manhattan_filtered.py  
+│   ├── manhattan_scaled.py  
+│   ├── gmm.py  
+│   ├── svm.py  
+├── app.py (Flask app)  
+├── static/  
+│   ├── style.css  
+├── templates/  
+│   ├── index.html  
+├── requirements.txt  
+└── README.md  
+```
 
-Access control for critical systems
-
-🔒 Advantages
-Non-intrusive
-
-Hard to mimic or steal
-
-Lightweight and requires no additional hardware
-
-⚠️ Limitations
-Variability due to mood, injury, fatigue
-
-Requires sufficient training data
-
-Sensitive to hardware differences (keyboard type)
-
-📚 References
-Research papers on keystroke biometrics
-
-Keystroke Dynamics — Wikipedia
-
-Academic papers in cybersecurity conferences
+## Usage
+1. On the web interface, you'll be prompted to type a specific phrase
+2. After typing, click the "Submit" button
+3. The system will analyze your typing pattern and display verification results from all 5 models
+4. The final decision is made by majority vote of all models 

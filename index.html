@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keystroke Dynamics Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Keystroke Dynamics User Verification</h1>
+        
+        <div class="typing-box">
+            <h2>Type the following text:</h2>
+            <div class="target-text">
+                sourasantadutta
+            </div>
+            
+            <form id="keystrokeForm">
+                <textarea id="typingArea" placeholder="Type the text here..." required></textarea>
+                <button type="submit" id="submitBtn">Verify</button>
+            </form>
+            
+            <div class="loading" id="loadingIndicator">Processing</div>
+        </div>
+        
+        <div class="results" id="resultsContainer">
+            <h2>Verification Results</h2>
+            
+            <div id="modelResults">
+                <!-- Model results will be inserted here -->
+            </div>
+            
+            <div class="final-result" id="finalResult">
+                <!-- Final verification result will be inserted here -->
+            </div>
+            
+            <div class="visualization" id="visualizationContainer" style="display: none;">
+                <h3>Your Keystroke Dynamics</h3>
+                <div id="keystrokeDynamics">
+                    <!-- Keystroke dynamics visualization will be inserted here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="model-performance">
+            <h2>Model Performance</h2>
+            <p>Comparison of different keystroke dynamics verification models:</p>
+            <img src="{{ url_for('static', filename='model_performance.png') }}" alt="Model Performance" class="performance-chart">
+            
+            {% if feature_importance_available %}
+            <h3>Feature Importance</h3>
+            <img src="{{ url_for('static', filename='feature_importance.png') }}" alt="Feature Importance" class="performance-chart">
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('keystrokeForm');
+            const typingArea = document.getElementById('typingArea');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const modelResults = document.getElementById('modelResults');
+            const finalResult = document.getElementById('finalResult');
+            
+            // Store keystroke timings
+            let keyData = [];
+            
+            // Record key down events
+            typingArea.addEventListener('keydown', function(e) {
+                keyData.push({
+                    key: e.key,
+                    type: 'keydown',
+                    timestamp: performance.now()
+                });
+            });
+            
+            // Record key up events
+            typingArea.addEventListener('keyup', function(e) {
+                keyData.push({
+                    key: e.key,
+                    type: 'keyup',
+                    timestamp: performance.now()
+                });
+            });
+            
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                
+                // Prepare data to send
+                const data = {
+                    text: typingArea.value,
+                    keyData: keyData
+                };
+                
+                // Send data to server
+                fetch('/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Display results
+                    displayResults(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingIndicator.style.display = 'none';
+                    alert('An error occurred. Please try again.');
+                });
+            });
+            
+            // Display verification results
+            function displayResults(data) {
+                // Clear previous results
+                modelResults.innerHTML = '';
+                
+                // Add results for each model
+                for (const model in data.models) {
+                    const isVerified = data.models[model];
+                    const resultClass = isVerified ? 'verified' : 'not-verified';
+                    const resultText = isVerified ? 'Verified' : 'Not Verified';
+                    
+                    const modelResult = document.createElement('div');
+                    modelResult.className = `model-result ${resultClass}`;
+                    modelResult.innerHTML = `<strong>${model}:</strong> ${resultText}`;
+                    
+                    modelResults.appendChild(modelResult);
+                }
+                
+                // Add final result
+                const isFinalVerified = data.final_result;
+                finalResult.className = `final-result ${isFinalVerified ? 'verified' : 'not-verified'}`;
+                finalResult.textContent = isFinalVerified ? 'User Verified' : 'User Not Verified';
+                
+                // Display keystroke dynamics visualization if available
+                if (data.visualization) {
+                    const keystrokeDynamics = document.getElementById('keystrokeDynamics');
+                    keystrokeDynamics.innerHTML = `<img src="${data.visualization}?t=${new Date().getTime()}" alt="Keystroke Dynamics Visualization">`;
+                    document.getElementById('visualizationContainer').style.display = 'block';
+                }
+                
+                // Show results container
+                resultsContainer.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html> 
